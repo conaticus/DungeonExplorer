@@ -176,18 +176,19 @@ Utility:
                 Console.Write($"{message}: ");
                 
                 string inputRaw = Console.ReadLine();
-                if (Int32.TryParse(inputRaw, out numberChoice))
+                if (!Int32.TryParse(inputRaw, out numberChoice))
                 {
-                    if (numberChoice > choices.Length)
-                    {
-                        Console.WriteLine("That is not a valid choice.");
-                        continue;
-                    } 
-                    
-                    break;
+                    Console.WriteLine("Please enter a valid number");
+                    continue;
                 }
                 
-                Console.WriteLine("Please enter a valid number");
+                if (numberChoice > choices.Length)
+                {
+                    Console.WriteLine("That is not a valid choice.");
+                    continue;
+                }
+                
+                break;
             }
 
             return numberChoice - 1;
