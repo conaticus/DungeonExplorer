@@ -9,7 +9,7 @@ namespace DungeonExplorer
         /// </summary>
         public static void TestPlayer()
         {
-            var player = new Player("test");
+            Player player = new Player("test");
             player.GetAttacked(50);
             Debug.Assert(player.Health == 50);
             

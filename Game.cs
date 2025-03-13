@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DungeonExplorer
 {
@@ -6,6 +7,28 @@ namespace DungeonExplorer
     {
         private Player _player;
         private static bool _playing = true;
+
+        private struct Command
+        {
+            public String Name;
+            public String Description;
+
+            public Command(String name, String description)
+            {
+                Name = name;
+                Description = description;
+            }
+        }
+
+        private List<Command> commands = new List<Command>()
+        {
+            new Command("next", "Moves player to the next room"),
+            new Command("use", "Use inventory item if player has it in their inventory"),
+            new Command("inventory", "Displays items in inventory"),
+            new Command("health", "Displays player's health"),
+            new Command("help", "A list of all available commands"),
+            new Command("quit", "Quits the game")
+        };
         
         /// <summary>
         /// Starts the Game Flow
@@ -123,17 +146,8 @@ namespace DungeonExplorer
         /// </summary>
         private void Help()
         {
-            Console.WriteLine(@"
-Game:
-    next: Moves player to the next room
-    use: Use health potion if player has one in their inventory
-    inventory: Displays items in inventory
-    health: Gets player's health
-
-Utility:
-    help: A list of all available commands
-    quit: quits the game
-");
+            foreach (Command command in commands)
+                Console.WriteLine($"{command.Name}: {command.Description}");
         }
 
         /// <summary>
