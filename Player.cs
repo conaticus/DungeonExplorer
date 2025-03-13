@@ -165,6 +165,7 @@ namespace DungeonExplorer
         {
             ItemType? stolenItem = null;
             
+            // Finds first item in the player's inventory that has at least a count of 1, removes if exists.
             foreach (var inventoryItem in Inventory)
             {
                 ItemType itemType = inventoryItem.Key;
@@ -178,6 +179,7 @@ namespace DungeonExplorer
                 break;
             }
 
+            // If player has no items (e.g all counts were zero, or none existent, thief cannot steal)
             if (stolenItem == null)
             {
                 Console.WriteLine("The thief attempted to steal from you however you had no items in your inventory.");
