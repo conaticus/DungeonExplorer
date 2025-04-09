@@ -47,9 +47,11 @@
     <Compile Include="Creatures\Monsters\Monster.cs" />
     <Compile Include="Creatures\Monsters\MonsterOld.cs" />
     <Compile Include="Creatures\Monsters\MonsterType.cs" />
+    <Compile Include="Creatures\OldPlayer.cs" />
     <Compile Include="Creatures\Player.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Interfaces\IDamageable.cs" />
+    <Compile Include="Inventory.cs" />
     <Compile Include="Items\ItemType.cs" />
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="Tests.cs" />

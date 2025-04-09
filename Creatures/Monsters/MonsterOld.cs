@@ -5,21 +5,21 @@ namespace DungeonExplorer
         /// <summary>
         /// Makes attacks on player depending on monster type and its abilities
         /// </summary>
-        /// <param name="player">The player attacked by the monster</param>
+        /// <param name="oldPlayer">The player attacked by the monster</param>
         /// <param name="monsterType">The type of monster that is attacking the player</param>
-        public static void AttackPlayer(Player player, MonsterType monsterType)
+        public static void AttackPlayer(OldPlayer oldPlayer, MonsterType monsterType)
         {
             switch (monsterType)
             {
                 case MonsterType.Witch:
-                    player.GiveBadLuck();
+                    oldPlayer.GiveBadLuck();
                     break;
                 case MonsterType.Thief:
-                    player.StealItem();
-                    player.GetAttacked(10);
+                    oldPlayer.StealItem();
+                    oldPlayer.GetAttacked(10);
                     break;
                 case MonsterType.Zombie:
-                    player.GetAttacked(20);
+                    oldPlayer.GetAttacked(20);
                     break;
             }
         }

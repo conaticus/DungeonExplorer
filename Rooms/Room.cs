@@ -14,8 +14,8 @@ namespace DungeonExplorer
         /// <summary>
         /// Uses random to generate items/monsters that are found in this particular room
         /// </summary>
-        /// <param name="player">Player entering the room</param>
-        public Room(Player player)
+        /// <param name="oldPlayer">Player entering the room</param>
+        public Room(OldPlayer oldPlayer)
         {
             Random random = new Random();
             Description = Config.RoomDescriptions[random.Next(0, Config.RoomDescriptions.Count)];
@@ -23,8 +23,8 @@ namespace DungeonExplorer
             // Chooses number between 1, 10
             int result = random.Next(1, 11);
 
-            int monsterSpawnThreshold = player.HasBadLuck ? 5 : 8; // Bad luck: 50% chance of monster spawning, otherwise 30% chance (e.g 8,9,10 - 30%)
-            int itemSpawnThreshold = player.HasBadLuck ? 3 : 5; // Bad luck: 20% chance of item spawning (e.g 3,4 - 20%), otherwise 30% chance
+            int monsterSpawnThreshold = oldPlayer.HasBadLuck ? 5 : 8; // Bad luck: 50% chance of monster spawning, otherwise 30% chance (e.g 8,9,10 - 30%)
+            int itemSpawnThreshold = oldPlayer.HasBadLuck ? 3 : 5; // Bad luck: 20% chance of item spawning (e.g 3,4 - 20%), otherwise 30% chance
             
             if (result >= monsterSpawnThreshold)
                 Monster = (MonsterType) random.Next(0, Enum.GetValues(typeof(MonsterType)).Length);

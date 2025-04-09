@@ -5,7 +5,7 @@ namespace DungeonExplorer
 {
     class Game
     {
-        private Player _player;
+        private OldPlayer _oldPlayer;
         private static bool _playing = true;
 
         private struct Command
@@ -37,7 +37,7 @@ namespace DungeonExplorer
         {
             Console.WriteLine("Welcome to the Dungeon Game.");
             string playerName = ReadInput("Please enter your name");
-            _player = new Player(playerName);
+            _oldPlayer = new OldPlayer(playerName);
             Console.WriteLine($"Thanks, {playerName}.");
             Console.WriteLine();
             
@@ -91,21 +91,21 @@ namespace DungeonExplorer
         /// </summary>
         public void NextRoom()
         {
-            Room room = new Room(_player);
+            Room room = new Room(_oldPlayer);
             
             if (room.Monster != null)
             {
                 Console.WriteLine($"You just ran into a {room.Monster}!");
-                MonsterOld.AttackPlayer(_player, (MonsterType)room.Monster);
+                MonsterOld.AttackPlayer(_oldPlayer, (MonsterType)room.Monster);
                 Console.WriteLine();
             } else if (room.Item != null)
             {
-                _player.PickUpItem((ItemType)room.Item);
+                _oldPlayer.PickUpItem((ItemType)room.Item);
                 Console.WriteLine($"You picked up a {room.Item}. Use the 'use' command to use this item.");
             } else
                 Console.WriteLine("Nothing was discovered in this room.");
             
-            _player.HasBadLuck = false;
+            _oldPlayer.HasBadLuck = false;
         }
         
         /// <summary>
@@ -116,13 +116,13 @@ namespace DungeonExplorer
             string[] itemTypes = Enum.GetNames(typeof(ItemType));
             ItemType itemChoice = (ItemType)ReadMultiChoiceInt("Please choose an item to use", itemTypes);
             
-            if (!_player.HasItem(itemChoice))
+            if (!_oldPlayer.HasItem(itemChoice))
             {
                 Console.WriteLine($"You do not have a {itemChoice} in your inventory.");
                 return;
             }
             
-            _player.UseItem(itemChoice);
+            _oldPlayer.UseItem(itemChoice);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace DungeonExplorer
         /// </summary>
         private void DisplayInventory()
         {
-            Console.WriteLine($"Inventory: {_player.InventoryContents()}");
+            Console.WriteLine($"Inventory: {_oldPlayer.InventoryContents()}");
         }
         
         /// <summary>
@@ -138,7 +138,7 @@ namespace DungeonExplorer
         /// </summary>
         private void DisplayHealth()
         {
-            Console.WriteLine($"Health: {_player.Health}%");
+            Console.WriteLine($"Health: {_oldPlayer.Health}%");
         }
 
         /// <summary>
