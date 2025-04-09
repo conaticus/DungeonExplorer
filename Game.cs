@@ -96,7 +96,7 @@ namespace DungeonExplorer
             if (room.Monster != null)
             {
                 Console.WriteLine($"You just ran into a {room.Monster}!");
-                Monster.AttackPlayer(_player, (MonsterType)room.Monster);
+                MonsterOld.AttackPlayer(_player, (MonsterType)room.Monster);
                 Console.WriteLine();
             } else if (room.Item != null)
             {

@@ -1,6 +1,6 @@
 namespace DungeonExplorer
 {
-    public static class Monster
+    public static class MonsterOld
     {
         /// <summary>
         /// Makes attacks on player depending on monster type and its abilities
