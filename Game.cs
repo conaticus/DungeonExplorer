@@ -27,7 +27,7 @@ namespace DungeonExplorer
             new Command("inventory", "Displays items in inventory"),
             new Command("health", "Displays player's health"),
             new Command("help", "A list of all available commands"),
-            new Command("quit", "Quits the game")
+            new Command("exit", "Quits the game")
         };
         
         /// <summary>
@@ -35,6 +35,8 @@ namespace DungeonExplorer
         /// </summary>
         public void Start()
         {
+            Navigation.Initialise();
+            
             Console.WriteLine("Welcome to the Dungeon Game.");
             string playerName = ReadInput("Please enter your name");
             _oldPlayer = new OldPlayer(playerName);
@@ -57,9 +59,19 @@ namespace DungeonExplorer
                 string commandName = ReadInput("Enter a command, or type 'help' for a list of commands");
                 switch (commandName.Trim().ToLower())
                 {
-                    case "next":
-                        NextRoom();
+                    case "up":
+                        Navigation.EnterRoom(Navigation.Direction.North);
                         break;
+                    case "down":
+                        Navigation.EnterRoom(Navigation.Direction.South);
+                        break;
+                    case "right":
+                        Navigation.EnterRoom(Navigation.Direction.East);
+                        break;
+                    case "left":
+                        Navigation.EnterRoom(Navigation.Direction.West);
+                        break;
+                    
                     case "use":
                         UseItem();
                         break;
@@ -84,28 +96,6 @@ namespace DungeonExplorer
             } while (!processed);
             
             Console.WriteLine();
-        }
-
-        /// <summary>
-        /// Moves player to the next room. Rooms are linear and they can only progress to new rooms.
-        /// </summary>
-        public void NextRoom()
-        {
-            Room room = new Room(_oldPlayer);
-            
-            if (room.Monster != null)
-            {
-                Console.WriteLine($"You just ran into a {room.Monster}!");
-                MonsterOld.AttackPlayer(_oldPlayer, (MonsterType)room.Monster);
-                Console.WriteLine();
-            } else if (room.Item != null)
-            {
-                _oldPlayer.PickUpItem((ItemType)room.Item);
-                Console.WriteLine($"You picked up a {room.Item}. Use the 'use' command to use this item.");
-            } else
-                Console.WriteLine("Nothing was discovered in this room.");
-            
-            _oldPlayer.HasBadLuck = false;
         }
         
         /// <summary>

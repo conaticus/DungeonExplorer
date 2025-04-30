@@ -53,6 +53,8 @@
     <Compile Include="Interfaces\IDamageable.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Items\ItemType.cs" />
+    <Compile Include="Rooms\Navigation.cs" />
+    <Compile Include="Rooms\OldRoom.cs" />
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="Tests.cs" />
     <Compile Include="Program.cs" />
