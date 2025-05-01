@@ -1,42 +1,82 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DungeonExplorer
 {
     public class Inventory
     {
-        public Dictionary<ItemType, int> Contents { get; } = new Dictionary<ItemType, int>();
+        public Dictionary<String, (Item, int)> Contents { get; } = new Dictionary<String, (Item, int)>();
+
+        public bool IsShieldEquipped = false;
+        public Weapon EquippedWeapon = null;
         
+        /// <summary>
+        /// Get string of inventory contents.
+        /// </summary>
+        /// <returns>String of all items in the player's inventory</returns>
         public string InventoryContents()
         {
             List<string> items = new List<string>();
-            foreach (var item in Contents)
+            foreach (var itemEntry in Contents)
             {
-                int itemCount = item.Value;
+                var (item, itemCount) = itemEntry.Value;
+                
                 if (itemCount == 0)
                     continue;
                     
-                ItemType itemType = item.Key;
-                items.Add($"{itemCount}x {itemType.ToString()}");
+                items.Add($"{itemCount}x {item.Name}");
             }
             
             return string.Join(", ", items);
         }
         
-        public void PickupItem(ItemType item)
+        /// <summary>
+        /// Adds item to inventory
+        /// </summary>
+        /// <param name="item">Item to add to inventory</param>
+        public void PickupItem(Item item)
         {
-            if (Contents.ContainsKey(item))
+            if (Contents.TryGetValue(item.Name, out var itemTuple))
             {
-                Contents[item] += 1;
+                Contents[item.Name] = (itemTuple.Item1, itemTuple.Item2 + 1);
                 return;
             }
             
-            Contents.Add(item, 1);
+            Contents.Add(item.Name, (item, 1));
+        }
+
+        /// <summary>
+        /// Returns item in the inventory by name
+        /// </summary>
+        /// <param name="name">Entity name of the item to search for</param>
+        /// <returns>Item class that is associated with that name, if inside inventory</returns>
+        public Item GetItemByName(String name)
+        {
+            return Contents[name].Item1;
         }
         
-        /// <returns>True if the item is present in the inventory</returns>
-        public bool HasItem(ItemType item)
+        /// <summary>
+        /// Uses an item and removes it from the inventory as it has been used up
+        /// </summary>
+        /// <param name="itemName">Name of the item that has been used</param>
+        public void UseItem(String itemName)
         {
-            return Contents.ContainsKey(item) && Contents[item] != 0;
+            var itemTuple = Contents[itemName];
+            var updatedTuple = (itemTuple.Item1, itemTuple.Item2 - 1);
+            Contents[itemName] = updatedTuple;
+            
+            if (updatedTuple.Item2 == 0)
+                Contents.Remove(itemTuple.Item1.Name);
+        }
+
+        /// <summary>
+        /// Whether or not item is in player's inventory
+        /// </summary>
+        /// <param name="item">Item type to check for</param>
+        /// <returns>Boolean of whether the item is in the inventory or  not</returns>
+        public bool HasItem(Item item)
+        {
+            return Contents.ContainsKey(item.Name);
         }
     }
 }

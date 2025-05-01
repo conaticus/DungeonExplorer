@@ -12,7 +12,6 @@ namespace DungeonExplorer
             {
                 Console.WriteLine("Running Tests....");
                 PlayerTests.TestPlayer();
-                Console.WriteLine("Tests Passed.");
                 Console.WriteLine("==============");
                 Console.WriteLine();
             }

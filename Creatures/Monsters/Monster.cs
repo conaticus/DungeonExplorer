@@ -4,25 +4,35 @@ namespace DungeonExplorer
 {
     public class Monster : Creature
     {
+        public int AttackDamage;
+        
         /// <summary>
         /// Determines whether a monster will flee if their health is low, or if they will continue to fight.
         /// </summary>
         private protected bool _doesFlee;
 
-        public Monster(String name, int health, bool doesFlee) : base(name, health)
+        public Monster(String name, int health, int attackDamage, bool doesFlee) : base(name, health)
         {
+            AttackDamage = attackDamage;
             _doesFlee = doesFlee;
         }
 
-        public override void TakeDamage(int amount)
+        /// <summary>
+        /// When triggered, Monster makes fight or flight decision to flee or stay. If health is <=30%, monster has 1/4 chance of fleeing
+        /// </summary>
+        /// <returns>Whether or not the monster has flee</returns>
+        public bool FightOrFlight()
         {
-            base.TakeDamage(amount);
-
             if (!_doesFlee)
-                return;
+                return false;
             
-            // If health is <30%, 50% chance of fleeing? - simpler way of doing this without random? Where does it go if it flees?
-            throw new NotImplementedException();
+            if (Health > MaxHealth * 0.3)
+                return false;
+            
+            // 1/4 chance
+            var rnd = new Random();
+            var result = rnd.Next(1, 5);
+            return result == 1;
         }
     }
 }

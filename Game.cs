@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DungeonExplorer
 {
     class Game
     {
-        private OldPlayer _oldPlayer;
+        private Player _player;
         private static bool _playing = true;
 
         private struct Command
@@ -22,9 +23,15 @@ namespace DungeonExplorer
 
         private List<Command> commands = new List<Command>()
         {
-            new Command("next", "Moves player to the next room"),
-            new Command("use", "Use inventory item if player has it in their inventory"),
-            new Command("inventory", "Displays items in inventory"),
+            new Command("up", "Move to the room above"),
+            new Command("down", "Move to the room below"),
+            new Command("left", "Move to the room on the left"),
+            new Command("right", "Move to the room on the right"),
+            new Command("search", "Searches room and adds any found items to player's inventory"),
+            new Command("equip", "Equip/Use an item in player's inventory"),
+            new Command("attack", "Attacks the monster in the current room using the player's equipped weapon"),
+            new Command("inventory", "Displays items in player's inventory"),
+            new Command("weaponstrengths", "Displays all weapons in player's inventory and orders them by strength in descending order"),
             new Command("health", "Displays player's health"),
             new Command("help", "A list of all available commands"),
             new Command("exit", "Quits the game")
@@ -35,11 +42,11 @@ namespace DungeonExplorer
         /// </summary>
         public void Start()
         {
-            Navigation.Initialise();
-            
             Console.WriteLine("Welcome to the Dungeon Game.");
             string playerName = ReadInput("Please enter your name");
-            _oldPlayer = new OldPlayer(playerName);
+            
+            _player = new Player(playerName);
+            
             Console.WriteLine($"Thanks, {playerName}.");
             Console.WriteLine();
             
@@ -60,23 +67,35 @@ namespace DungeonExplorer
                 switch (commandName.Trim().ToLower())
                 {
                     case "up":
-                        Navigation.EnterRoom(Navigation.Direction.North);
+                        _player.EnterRoom(Navigation.Direction.North);
                         break;
                     case "down":
-                        Navigation.EnterRoom(Navigation.Direction.South);
+                        _player.EnterRoom(Navigation.Direction.South);
                         break;
                     case "right":
-                        Navigation.EnterRoom(Navigation.Direction.East);
+                        _player.EnterRoom(Navigation.Direction.East);
                         break;
                     case "left":
-                        Navigation.EnterRoom(Navigation.Direction.West);
+                        _player.EnterRoom(Navigation.Direction.West);
                         break;
                     
-                    case "use":
-                        UseItem();
+                    case "attack":
+                        _player.AttackMonster();
                         break;
+                    
+                    case "search":
+                        SearchRoom();
+                        break;
+                    
+                    case "equip":
+                        EquipItem();
+                        break;
+                    
                     case "inventory":
                         DisplayInventory();
+                        break;
+                    case "weaponstrengths":
+                        DisplayWeaponsByStrength();
                         break;
                     case "health":
                         DisplayHealth();
@@ -85,8 +104,9 @@ namespace DungeonExplorer
                     case "help":
                         Help();
                         break;
-                    case "quit":
-                        Quit();
+                    
+                    case "exit":
+                        Exit();
                         break;
                     default:
                         processed = false;
@@ -97,30 +117,36 @@ namespace DungeonExplorer
             
             Console.WriteLine();
         }
-        
-        /// <summary>
-        /// Use item if that item exists in the player's inventory. Multiple choice dialogue is triggered to select an item type.
-        /// </summary>
-        private void UseItem()
-        {
-            string[] itemTypes = Enum.GetNames(typeof(ItemType));
-            ItemType itemChoice = (ItemType)ReadMultiChoiceInt("Please choose an item to use", itemTypes);
-            
-            if (!_oldPlayer.HasItem(itemChoice))
-            {
-                Console.WriteLine($"You do not have a {itemChoice} in your inventory.");
-                return;
-            }
-            
-            _oldPlayer.UseItem(itemChoice);
-        }
-
+ 
         /// <summary>
         /// Displays all items in the player's inventory as well as the number of items in there.s
         /// </summary>
         private void DisplayInventory()
         {
-            Console.WriteLine($"Inventory: {_oldPlayer.InventoryContents()}");
+            Console.WriteLine($"Inventory: {_player.Inventory.InventoryContents()}");
+        }
+        
+        /// <summary>
+        /// Sorts all player's Weapons by strength in descending order & displays them
+        /// </summary>
+        private void DisplayWeaponsByStrength()
+        {
+            var weapons = _player.Inventory.Contents.Values
+                .Select(i => i.Item1)
+                .OfType<Weapon>()
+                .ToList();
+
+            if (weapons.Count == 0)
+            {
+                Console.WriteLine("You do not have any weapons in your inventory.");
+                return;
+            }
+            
+            var sortedWeapons = weapons
+                .OrderByDescending(w => w.DamagePerHit)
+                .Select(w => $"{w.Name}: {w.DamagePerHit} Damage per Hit");
+
+            Console.WriteLine(String.Join("\n", sortedWeapons));
         }
         
         /// <summary>
@@ -128,7 +154,7 @@ namespace DungeonExplorer
         /// </summary>
         private void DisplayHealth()
         {
-            Console.WriteLine($"Health: {_oldPlayer.Health}%");
+            Console.WriteLine($"Health: {_player.Health}%");
         }
 
         /// <summary>
@@ -156,6 +182,70 @@ namespace DungeonExplorer
             }
 
             return input;
+        }
+
+        /// <summary>
+        /// Equip an item in the player's inventory, if it is equippable
+        /// </summary>
+        public void EquipItem()
+        {
+            var inventoryItems = _player.Inventory.Contents
+                .Where(i => i.Value.Item2 != 0 && i.Value.Item1.IsEquippable)
+                .Select(i => i.Key)
+                .ToArray();
+
+            if (inventoryItems.Length == 0)
+            {
+                Console.WriteLine("You do not have any items in your inventory. Use 'search' command on rooms to find them.");
+                return;
+            }
+            
+            var choice = ReadMultiChoiceInt("Choose an item to equip", inventoryItems);
+            var itemName = inventoryItems[choice];
+            
+            var item = _player.Inventory.GetItemByName(itemName);
+            
+            if (item is Potion potion)
+            {
+                potion.ApplyTo(_player);
+                _player.Inventory.UseItem(itemName);
+                return;
+            }
+
+            if (item is Weapon weapon)
+            {
+                _player.Inventory.EquippedWeapon = weapon;
+                Console.WriteLine($"Your equipped weapon is now a '{weapon.Name}'");
+                return;
+            }
+            
+            if (item is Shield)
+            {
+                _player.Inventory.IsShieldEquipped = true;
+                Console.WriteLine("You now have a shield equipped. This will make you less likely to take damage when attacked.");
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Search a room for any items, if any exist, add them to player's inventory
+        /// </summary>
+        public void SearchRoom()
+        {
+            var currentRoom = _player.Navigation.CurrentRoom;
+            if (currentRoom.Items.Count == 0)
+            {
+                Console.WriteLine("No items were found in this room.");
+                return;
+            }
+
+            foreach (var item in currentRoom.Items)
+            {
+                _player.Inventory.PickupItem(item);
+                Console.WriteLine($"You Found 1x '{item.Name}' (use 'equip' to use it)");
+            }
+            
+            currentRoom.Items.Clear();
         }
 
         /// <summary>
@@ -201,12 +291,13 @@ namespace DungeonExplorer
         /// <summary>
         /// Quits the game and waits for keyboard input to exit process
         /// </summary>
-        public static void Quit()
+        public static void Exit()
         {
             _playing = false;
             Console.WriteLine("Thanks for playing!");
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+            Environment.Exit(0);
         }
     }
 }
