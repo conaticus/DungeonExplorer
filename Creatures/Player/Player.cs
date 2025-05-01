@@ -4,7 +4,7 @@ namespace DungeonExplorer
 {
     public class Player : Creature
     {
-        public int Score = 0;
+        public Statistics Stats;
         
         public Inventory Inventory = new Inventory();
         public Navigation Navigation = new Navigation();
@@ -100,7 +100,7 @@ namespace DungeonExplorer
             }
             
             Inventory.EquippedWeapon.Attack(monster);
-            Score += Inventory.EquippedWeapon.DamagePerHit;
+            Stats.Score += Inventory.EquippedWeapon.DamagePerHit;
             
             if (monster.Health > 0)
             {
@@ -113,7 +113,7 @@ namespace DungeonExplorer
                 if (monster is Dragon)
                 {
                     Console.WriteLine("You killed the final boss! You have escaped the Dungeon, congratulations!");
-                    Console.WriteLine($"Your Score: {Score}");
+                    Console.WriteLine($"Your Score: {Stats.Score}");
                     Game.Exit();
                     return;
                 }

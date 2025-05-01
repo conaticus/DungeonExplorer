@@ -27,6 +27,5 @@ namespace DungeonExplorer
             if (Health < 0)
                 Health = 0;
         }
-
     }
 }
